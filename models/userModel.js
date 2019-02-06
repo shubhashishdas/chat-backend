@@ -20,4 +20,12 @@ module.exports = class User {
             [this.name, this.username, this.password, this.created, this.modified]
         )
     }
+
+    static findByUsername(username) {
+        return db.execute('SELECT * FROM user WHERE username = ?', [username]);
+    }
+
+    static findById(id) {
+        return db.execute('SELECT * FROM id WHERE id = ?', [id]);
+    }
 }

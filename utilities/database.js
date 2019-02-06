@@ -1,10 +1,12 @@
 var mysql = require('mysql2');
+var config = require('./config');
+
 var pool = mysql.createPool({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: '123456',
-    database: 'chat',
+    host: config.host,
+    port: config.port,
+    user: config.user,
+    password: config.password,
+    database: config.database,
 });
 
 module.exports = pool.promise();

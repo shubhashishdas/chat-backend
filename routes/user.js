@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var auth = require('../middleware/auth');
 var UserController = require('../controllers/UserController');
 
 router.use(function (req, res, next) {
@@ -13,7 +14,7 @@ router.get('/', function (req, res, next) {
 
 router.post('/signup', UserController.signup);
 router.post('/signin', UserController.signin);
-router.get('/profile', UserController.getProfile);
+router.get('/profile', auth, UserController.getProfile);
 router.post('/updateProfile', UserController.updateProfile);
 router.get('/getRequests', UserController.getRequests);
 router.get('/acceptRequests/:id', UserController.acceptRequests);

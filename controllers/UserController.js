@@ -1,22 +1,37 @@
 var bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
 var User = require('../models/userModel');
+var config = require('../utilities/config');
 
 module.exports.signin = (req, res, next) => {
-    console.log(req.body);
-    res.status(200).json({ isSuccess: true });
+    let username = req.body.username;
+    let password = req.body.password;
+    let userData;
+    User.findByUsername(username)
+        .then(([result, fields]) => {
+            userData = result[0];
+            return bcrypt.compare(password, result[0].password);
+        })
+        .then(result => {
+            if (result) {
+                delete userData.password;
+                payload = { username: userData.username, id: userData.id };
+                let token = jwt.sign(
+                    payload,
+                    config.secret,
+                    { expiresIn: '1h' }
+                );
+                res.status(200).json({ isSuccess: true, token: "Bearer " + token, message: 'Logged-in successfully', data: userData });
+            } else {
+                res.status(200).json({ isSuccess: false, message: 'Username and password not matched' });
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        });
 }
 
 module.exports.signup = (req, res, next) => {
-    // userModel
-    //     .fetchAll()
-    //     .then(([result, fields]) => {
-    //         console.log(result);
-    //     })
-    //     .catch(err => {
-    //         console.log(err);
-    //     });
-
-
     bcrypt.hash(req.body.password, 16).then(hash => {
         let name = req.body.name;
         let username = req.body.username;
@@ -28,7 +43,7 @@ module.exports.signup = (req, res, next) => {
             .then(result => {
                 res.status(201).json({
                     isSuccess: true,
-                    // data: req.body
+                    message: 'User registered successfully'
                 });
             })
             .catch(error => {
@@ -40,6 +55,7 @@ module.exports.signup = (req, res, next) => {
 module.exports.getProfile = (req, res, next) => {
     res.status(200).json({
         isSuccess: true,
+        data: req.authData
     });
 }
 
